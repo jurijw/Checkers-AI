@@ -13,14 +13,7 @@ def main():
         board.move()
 
         # Change players turn
-        board.white_turn = not board.white_turn
-
-        # board.must_capture = False
-        board.capture_on_last_move = False
-        # List to keep track of available valid moves given the game state
-        # board.moves = None
-        # DEBUG - remove
-        # board.game_over = True
+        board.switch()
 
 
 if __name__ == "__main__":

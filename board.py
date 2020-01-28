@@ -16,6 +16,23 @@ def pos_on_board(pos):
     else:
         return True
 
+def get_user_input(valid_moves):
+    """
+    Prompt the user for input. Returns a tuple containing
+    the index of the desired piece and the desired move.
+    Args:
+    valid_moves -> List[Tuple(Tuple(x, y), List[List[Tuple(x, y), ..], ..])]
+    """
+    # Print moves and get input
+    moveable_pieces = [move[0] for move in valid_moves]
+    print("Moveable pieces: ", moveable_pieces)
+    piece_index = int(input(f"Choose a piece by index (0 - {len(moveable_pieces) - 1}) : "))
+    # Get the moves for that piece
+    potential_moves = [move[0] for move in valid_moves[piece_index][1]]
+    print("Potential Moves: ", potential_moves)
+    move_index = int(input(f"Choose a move by index (0 - {len(potential_moves) - 1}) : "))
+
+    return (piece_index, move_index)
 
 class Board:
     def __init__(self, board=None, white_turn=True, game_over=False, must_capture=False, capture_on_last_move=False):
@@ -90,8 +107,7 @@ class Board:
         turn it is and the current board configuration. Updates the properties
         of some pieces to indicate which moves (if any) they can make. 
         Returns:
-        None if game over
-        else valid_moves -> List[Tuple(Tuple(x, y), List[Tuple(x, y), ..])]
+        valid_moves -> List[Tuple(Tuple(x, y), List[List[Tuple(x, y), ..], ..])]
         """ 
         # Assume no capturing moves must be made
         self.must_capture = False
@@ -173,14 +189,10 @@ class Board:
             elif piece.can_move:
                 valid_moves.append((piece_pos, piece.single_square_moves))
         
-        # FIX: perhaps implement this elsewhere
-        # # If there are no valid moves for the player whose turn it is the game is over
-        # # In this case update the game_over status of the board and return None
-        # if valid_moves == []:
-        #     self.game_over = True
-        #     return None
-
-        # Otherwise, return a list of valid moves 
+        # If no capturing move was made on the last turn and there are no valid moves the game is over
+        if valid_moves == [] and not self.capture_on_last_move:
+            self.game_over = True
+        # Return a list of valid moves 
         self.moves = valid_moves
         return valid_moves
 
@@ -197,6 +209,8 @@ class Board:
         """
         # Display the board
         self.show()
+        # Print player's turn
+        print("White to move.") if self.white_turn else print("Black to move.")
 
         # Get valid moves (also updates self.moves in the process)
         valid_moves = self.valid_moves()
@@ -209,17 +223,7 @@ class Board:
         #                  but capturing moves exist
 
         # Get user input
-        print("White to move.") if self.white_turn else print("Black to move.")
-
-        # Print moves and get input
-        moveable_pieces = [move[0] for move in valid_moves]
-        print("Moveable pieces: ", moveable_pieces)
-        piece_index = int(input(f"Choose a piece by index (0 - {len(moveable_pieces) - 1}) : "))
-        # Get the moves for that piece
-        potential_moves = [move[0] for move in valid_moves[piece_index][1]]
-        print("Potential Moves: ", potential_moves)
-        move_index = int(input(f"Choose a move by index (0 - {len(potential_moves) - 1}) : "))
-
+        piece_index, move_index = get_user_input(valid_moves)
 
         # Get piece position
         piece_x, piece_y = valid_moves[piece_index][0]
@@ -255,6 +259,10 @@ class Board:
     
         return False
 
+    def switch(self):
+        self.white_turn = not self.white_turn
+        self.capture_on_last_move = False
+
 
 
 def main():
@@ -271,6 +279,7 @@ def main():
     test_board.board[4][4] = Piece((4, 4), white=True)
     test_board.board[6][2] = Piece((2, 6), white=True)
 
+    print(test_board.valid_moves())
 
     game_over = False
     while not game_over:
