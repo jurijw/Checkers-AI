@@ -146,31 +146,32 @@ class Board:
                         final_pos = new_x1, new_y1
                         single_square_moves.append([final_pos])
                 
-                # If the piece can make capturing moves set these as the piece.moves 
-                # property and change the must_capture attribute of the board
-                if two_square_moves != []:
-                    piece.can_move = True
-                    piece.can_capture = True
-                    piece.two_square_moves = two_square_moves
-                    self.must_capture = True
-                # Otherwise just set the single square moves as that pieces moves
-                elif single_square_moves != []:
-                    piece.can_move = True
-                    piece.can_capture = False
-                    piece.single_square_moves = single_square_moves
+            # If the piece can make capturing moves set these as the piece.moves 
+            # property and change the must_capture attribute of the board
+            if two_square_moves != []:
+                piece.can_move = True
+                piece.can_capture = True
+                piece.two_square_moves = two_square_moves
+                self.must_capture = True
+            # Otherwise just set the single square moves as that piece's moves
+            elif single_square_moves != []:
+                piece.can_move = True
+                piece.can_capture = False
+                piece.single_square_moves = single_square_moves
 
         valid_moves = []
         # If the player must make a capturing move return all the two square moves of the pieces
         # This occurs either when a capturing move is available or if a capturing move was made 
         # on the last turn.
         for piece in pieces:
-            if piece.can_move:
-                piece_pos = piece.x, piece.y
+            piece_pos = piece.x, piece.y
 
-                if self.capture_on_last_move or self.must_capture:
+            if self.capture_on_last_move or self.must_capture:
+                # Check if double square moves exist
+                if piece.two_square_moves != []:
                     valid_moves.append((piece_pos, piece.two_square_moves))
-                else:
-                    valid_moves.append((piece_pos, piece.single_square_moves))
+            elif piece.can_move:
+                valid_moves.append((piece_pos, piece.single_square_moves))
         
         # FIX: perhaps implement this elsewhere
         # # If there are no valid moves for the player whose turn it is the game is over
@@ -258,8 +259,30 @@ class Board:
 
 def main():
     test_board = Board()
-    test_board.show()
-    print(test_board.valid_moves())
+    for j, row in enumerate(test_board.board):
+        for i, _ in enumerate(row):
+            test_board.board[j][i] = Piece((i, j), empty=True)
+    
+    test_board.board[1][1] = Piece((1, 1), white=False)
+    test_board.board[1][5] = Piece((5, 1), white=False)
+
+    test_board.board[3][3] = Piece((3, 3), white=True)
+    test_board.board[4][2] = Piece((2, 4), white=True)
+    test_board.board[4][4] = Piece((4, 4), white=True)
+    test_board.board[6][2] = Piece((2, 6), white=True)
+
+
+    game_over = False
+    while not game_over:
+        test_board.move()
+        test_board.white_turn = not test_board.white_turn
+        test_board.must_capture = False
+        test_board.capture_on_last_move = False
+        # List to keep track of available valid moves given the game state
+        test_board.moves = None
+
+    
+
 
 
 if __name__ == "__main__":
