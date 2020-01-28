@@ -15,6 +15,11 @@ def main():
         # Change players turn
         board.switch()
 
+    # Opposite of current player wins (It gets switched with board.switch())
+    white_wins = not board.white_turn
+    # Print winner
+    print("White wins!") if white_wins else print("Black wins!")
+
 
 if __name__ == "__main__":
     main()
