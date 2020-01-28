@@ -9,11 +9,20 @@ class Piece:
         if not empty:
             self.crowned = False
             self.selected = False
-            
+
             self.can_move = False
             self.can_capture = False
             self.single_square_moves = [] # List to store the pieces single square moves
             self.two_square_moves = [] # List to store pieces two square (capturing) moves
+        else:
+            self.crowned = None
+            self.selected = None
+
+            self.can_move = None
+            self.can_capture = None
+            self.single_square_moves = None # List to store the pieces single square moves
+            self.two_square_moves = None # List to store pieces two square (capturing) moves
+
 
     def __repr__(self):
         return f"Piece({(self.x, self.y)}, white={self.white}, empty={self.empty})"
